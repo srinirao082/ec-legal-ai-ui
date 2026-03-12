@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+<title>Property Timeline</title>
+
+<style>
+
+body{
+font-family:Arial;
+background:#f4f6f9;
+padding:40px
+}
+
+.container{
+display:flex;
+gap:40px
+}
+
+.timeline{
+border-left:3px solid #2563eb;
+padding-left:30px;
+flex:2
+}
+
+.event{
+background:white;
+padding:15px;
+margin-bottom:20px;
+border-radius:10px;
+box-shadow:0 5px 15px rgba(0,0,0,0.05)
+}
+
+.dot{
+width:14px;
+height:14px;
+background:#2563eb;
+border-radius:50%;
+position:absolute;
+margin-left:-38px;
+margin-top:10px
+}
+
+.ai{
+flex:1;
+background:white;
+padding:20px;
+border-radius:12px;
+box-shadow:0 5px 15px rgba(0,0,0,0.05)
+}
+
+button{
+background:#2563eb;
+color:white;
+padding:10px 15px;
+border:none;
+border-radius:6px;
+cursor:pointer
+}
+
+</style>
+
+</head>
+
+<body>
+
+<h2 id="title"></h2>
+
+<div class="container">
+
+<div id="timeline" class="timeline"></div>
+
+<div class="ai">
+
+<h3>AI Legal Report</h3>
+
+<button onclick="generateAI()">Generate AI Report</button>
+
+<pre id="ai"></pre>
+
+</div>
+
+</div>
+
+<script>
+
+const API = "https://8000-xxxx.cloudspaces.litng.ai"
+
+const params=new URLSearchParams(window.location.search)
+
+const upload=params.get("upload")
+const id=params.get("id")
+
+async function load(){
+
+const res=await fetch(`${API}/property/${upload}/${id}`)
+const prop=await res.json()
+
+document.getElementById("title").innerText=
+prop.apartment || prop.property || "Property History"
+
+const timeline=document.getElementById("timeline")
+
+prop.transactions.forEach(tx=>{
+
+timeline.innerHTML+=`
+
+<div class="event">
+
+<div class="dot"></div>
+
+<b>${tx.deed || "Document"}</b><br>
+
+Doc No: ${tx.doc_no}
+
+</div>
+
+`
+
+})
+
+}
+
+async function generateAI(){
+
+const res=await fetch(`${API}/ai/${upload}/${id}`)
+
+const data=await res.json()
+
+document.getElementById("ai").innerText=data.analysis
+
+}
+
+load()
+
+</script>
+
+</body>
+</html>
