@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+<title>EC Legal AI</title>
+
+<style>
+
+body{
+font-family:Arial;
+background:#f4f6f9;
+padding:40px
+}
+
+.grid{
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:20px
+}
+
+.card{
+background:white;
+padding:20px;
+border-radius:12px;
+box-shadow:0 5px 15px rgba(0,0,0,0.05)
+}
+
+.link{
+color:#2563eb;
+cursor:pointer;
+margin-top:10px;
+font-weight:bold
+}
+
+</style>
+
+</head>
+
+<body>
+
+<h1>Upload EC JSON Files</h1>
+
+<input type="file" id="files" multiple>
+
+<button onclick="upload()">Analyze EC</button>
+
+<hr>
+
+<h2>Detected Properties</h2>
+
+<div id="properties" class="grid"></div>
+
+<script>
+
+const API = "https://8000-xxxx.cloudspaces.litng.ai"
+
+async function upload(){
+
+const files = document.getElementById("files").files
+
+const form = new FormData()
+
+for(let f of files){
+form.append("files",f)
+}
+
+const res = await fetch(`${API}/predict`,{
+method:"POST",
+body:form
+})
+
+const data = await res.json()
+
+localStorage.setItem("upload",data.upload_id)
+localStorage.setItem("properties",JSON.stringify(data.properties))
+
+render(data.properties)
+
+}
+
+function render(props){
+
+const container=document.getElementById("properties")
+container.innerHTML=""
+
+props.forEach((p,i)=>{
+
+container.innerHTML += `
+
+<div class="card">
+
+<h3>${p.apartment || p.property || "Property"}</h3>
+
+Survey: ${p.survey || "-"} <br>
+Extent: ${p.extent || "-"}
+
+<div class="link" onclick="openProperty(${i})">
+View Legal History →
+</div>
+
+</div>
+
+`
+
+})
+
+}
+
+function openProperty(i){
+
+const upload = localStorage.getItem("upload")
+
+window.location = `property.html?upload=${upload}&id=${i}`
+
+}
+
+</script>
+
+</body>
+</html>
